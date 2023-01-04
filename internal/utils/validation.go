@@ -3,6 +3,7 @@ package utils
 import (
 	"errors"
 	"fmt"
+	"reflect"
 	"strings"
 
 	"github.com/go-playground/validator/v10"
@@ -37,11 +38,14 @@ func ValidateStruct[T any](s T) *ErrorResponse {
 	if errors.As(err, &ve) {
 		err := ve[0]
 
+		// Getting the JSON name for the errored field
+		field, _ := reflect.TypeOf(s).FieldByName(err.StructField())
+		name := strings.SplitN(field.Tag.Get("json"), ",", 2)[0]
+
 		var response ErrorResponse
-		response.Reason = fmt.Sprintf("%v %v", err.Field(), msgForTag(err))
+		response.Reason = fmt.Sprintf("%v %v", name, msgForTag(err))
 
 		return &response
-
 	}
 
 	return nil

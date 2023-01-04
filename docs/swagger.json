@@ -1,28 +1,28 @@
 {
     "swagger": "2.0",
     "info": {
-        "description": "Description for methods avaliable with Quick QR API",
-        "title": "Quick QR API",
-        "contact": {
-            "url": "https://gitlab.com/quick-qr/api/-/issues"
-        },
-        "version": "0.0.0"
+      "description": "Description for methods available with Quick QR API",
+      "title": "Quick QR API",
+      "contact": {
+        "url": "https://gitlab.com/quick-qr/api/"
+      },
+      "version": "0.0.0"
     },
     "basePath": "/api/",
     "paths": {
         "/v1/generate": {
             "post": {
-                "description": "# Hello, world",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "image/png"
-                ],
-                "summary": "Get user list",
-                "parameters": [
-                    {
-                        "description": "Configuration for QR code generator. Default values are showed below",
+              "description": "// TODO: ",
+              "consumes": [
+                "application/json"
+              ],
+              "produces": [
+                "image/png"
+              ],
+              "summary": "Get user list",
+              "parameters": [
+                {
+                  "description": "Configuration for QR code generator. Default values are showed below",
                         "name": "request",
                         "in": "body",
                         "required": true,

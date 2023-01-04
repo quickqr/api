@@ -11,7 +11,7 @@ const docTemplate = `{
         "description": "{{escape .Description}}",
         "title": "{{.Title}}",
         "contact": {
-            "url": "https://gitlab.com/quick-qr/api/-/issues"
+            "url": "https://gitlab.com/quick-qr/api/"
         },
         "version": "{{.Version}}"
     },
@@ -20,7 +20,7 @@ const docTemplate = `{
     "paths": {
         "/v1/generate": {
             "post": {
-                "description": "# Hello, world",
+                "description": "// TODO: ",
                 "consumes": [
                     "application/json"
                 ],
@@ -114,7 +114,7 @@ var SwaggerInfo = &swag.Spec{
 	BasePath:         "/api/",
 	Schemes:          []string{},
 	Title:            "Quick QR API",
-	Description:      "Description for methods avaliable with Quick QR API",
+	Description:      "Description for methods available with Quick QR API",
 	InfoInstanceName: "swagger",
 	SwaggerTemplate:  docTemplate,
 }

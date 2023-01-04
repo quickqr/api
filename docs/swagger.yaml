@@ -36,8 +36,8 @@ definitions:
     type: object
 info:
   contact:
-    url: https://gitlab.com/quick-qr/api/-/issues
-  description: Description for methods avaliable with Quick QR API
+    url: https://gitlab.com/quick-qr/api/
+  description: Description for methods available with Quick QR API
   title: Quick QR API
   version: 0.0.0
 paths:
@@ -45,7 +45,7 @@ paths:
     post:
       consumes:
       - application/json
-      description: '# Hello, world'
+      description: '// TODO: '
       parameters:
       - description: Configuration for QR code generator. Default values are showed
           below

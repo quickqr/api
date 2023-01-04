@@ -11,8 +11,8 @@ import (
 
 // @title			Quick QR API
 // @version		0.0.0
-// @contact.url	https://gitlab.com/quick-qr/api/-/issues
-// @description	Description for methods avaliable with Quick QR API
+// @contact.url	https://gitlab.com/quick-qr/api/
+// @description	Description for methods available with Quick QR API
 // @BasePath		/api/
 func main() {
 	err := godotenv.Load()

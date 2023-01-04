@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"reflect"
+	"regexp"
 	"strings"
 
 	"github.com/go-playground/validator/v10"
@@ -11,14 +12,35 @@ import (
 
 var validate = validator.New()
 
+func init() {
+	validate.RegisterValidation("custom_hexcolor", validateHexColor)
+}
+
+func validateHexColor(fl validator.FieldLevel) bool {
+	re := regexp.MustCompile("^([0-9A-Fa-f]{6}|[0-9A-Fa-f]{8})$")
+
+	return re.Match([]byte(fl.Field().String()))
+}
+
+func minMaxUnits(fe validator.FieldError) string {
+	if fe.Type().Name() == "string" {
+		return "characters"
+	}
+
+	return ""
+}
+
 func msgForTag(fe validator.FieldError) string {
+
 	switch fe.Tag() {
 	case "required":
 		return "is required"
-	case "hexcolor":
-		return "should be hex color"
+	case "custom_hexcolor":
+		return "should be valid hex color string with length of 6 (or 8)"
 	case "min":
-		return "should be at least " + fe.Param()
+		return fmt.Sprintf("should be at least %v %v", fe.Param(), minMaxUnits(fe))
+	case "max":
+		return fmt.Sprintf("should not be greater than %v %v", fe.Param(), minMaxUnits(fe))
 	case "oneof":
 		list := strings.Join(strings.Split(fe.Param(), " "), ", ")
 		return "should be on of following values: " + list

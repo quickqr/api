@@ -1,0 +1,69 @@
+basePath: /api/
+definitions:
+  v1_api.errorResponse:
+    properties:
+      message:
+        type: string
+    type: object
+  v1_api.generateBody:
+    properties:
+      backgroundColor:
+        example: ffffff
+        type: string
+      data:
+        example: Some data to encode
+        type: string
+      disableBorder:
+        example: false
+        type: boolean
+      foregroundColor:
+        example: "000000"
+        type: string
+      recoveryLevel:
+        enum:
+        - low
+        - medium
+        - high
+        - highest
+        example: medium
+        type: string
+      size:
+        example: 512
+        minimum: 128
+        type: integer
+    required:
+    - data
+    type: object
+info:
+  contact:
+    url: https://gitlab.com/quick-qr/api/-/issues
+  description: Description for methods avaliable with Quick QR API
+  title: Quick QR API
+  version: 0.0.0
+paths:
+  /v1/generate:
+    post:
+      consumes:
+      - application/json
+      description: '# Hello, world'
+      parameters:
+      - description: Configuration for QR code generator. Default values are showed
+          below
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/v1_api.generateBody'
+      produces:
+      - image/png
+      responses:
+        "201":
+          description: Will return generated QR code as PNG
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/v1_api.errorResponse'
+      summary: Get user list
+swagger: "2.0"

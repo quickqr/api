@@ -5,9 +5,15 @@ import (
 	"os"
 
 	"github.com/joho/godotenv"
+	_ "gitlab.com/quick-qr/server/docs"
 	"gitlab.com/quick-qr/server/internal"
 )
 
+// @title			Quick QR API
+// @version		0.0.0
+// @contact.url	https://gitlab.com/quick-qr/api/-/issues
+// @description	Description for methods avaliable with Quick QR API
+// @BasePath		/api/
 func main() {
 	err := godotenv.Load()
 

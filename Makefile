@@ -8,6 +8,6 @@
 #stop:
 #	docker-compose down
 
-docs:
+swagger:
 	swag init -g cmd/main.go --md docs/markdown
 

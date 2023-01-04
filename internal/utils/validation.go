@@ -11,10 +11,6 @@ import (
 
 var validate = validator.New()
 
-type ErrorResponse struct {
-	Reason string `json:"reason"`
-}
-
 func msgForTag(fe validator.FieldError) string {
 	switch fe.Tag() {
 	case "required":
@@ -31,7 +27,7 @@ func msgForTag(fe validator.FieldError) string {
 	return fe.Error() // default error
 }
 
-func ValidateStruct[T any](s T) *ErrorResponse {
+func ValidateStruct[T any](s T) *string {
 	err := validate.Struct(s)
 
 	var ve validator.ValidationErrors
@@ -42,10 +38,9 @@ func ValidateStruct[T any](s T) *ErrorResponse {
 		field, _ := reflect.TypeOf(s).FieldByName(err.StructField())
 		name := strings.SplitN(field.Tag.Get("json"), ",", 2)[0]
 
-		var response ErrorResponse
-		response.Reason = fmt.Sprintf("%v %v", name, msgForTag(err))
+		reason := fmt.Sprintf("%v %v", name, msgForTag(err))
 
-		return &response
+		return &reason
 	}
 
 	return nil

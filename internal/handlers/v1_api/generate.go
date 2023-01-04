@@ -32,7 +32,7 @@ func GenerateQR(c *fiber.Ctx) error {
 	err := utils.ValidateStruct(payload)
 
 	if err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(err)
+		return c.Status(fiber.StatusBadRequest).JSON(errorResponse{*err})
 
 	}
 

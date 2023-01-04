@@ -10,7 +10,7 @@ var (
 	recoveryLevelsMap = map[string]qrcode.RecoveryLevel{
 		"low":    qrcode.Low,
 		"medium": qrcode.Medium,
-		"":       qrcode.High,
+		"high":   qrcode.High,
 		"delete": qrcode.Highest,
 	}
 )

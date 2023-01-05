@@ -1,11 +1,9 @@
 package utils
 
 import (
-	"encoding/hex"
 	"errors"
 	"fmt"
 	"github.com/yeqown/go-qrcode/v2"
-	"image/color"
 	"strings"
 )
 
@@ -36,15 +34,4 @@ func (bit *ConvertibleBoolean) UnmarshalJSON(data []byte) error {
 func StringToRecoveryLevel(str string) (qrcode.ErrorCorrectionLevel, bool) {
 	c, ok := recoveryLevelsMap[strings.ToLower(str)]
 	return c, ok
-}
-
-func HexToRGBA(hexString string) color.RGBA {
-	b, _ := hex.DecodeString(hexString)
-
-	var alpha uint8 = 255
-	if len(b) == 4 {
-		alpha = uint8(b[3])
-	}
-
-	return color.RGBA{b[0], b[1], b[2], alpha}
 }

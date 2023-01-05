@@ -41,10 +41,10 @@ func generateFromRequest(req generateBody) ([]byte, error) {
 	var png bytes.Buffer
 
 	w := standard.NewWithWriter(
-		&BufferWriteCloser{
-			bufio.NewWriter(&png)},
-
-		standard.WithBgColor(utils.HexToRGBA(req.BackgroundColor)), standard.WithFgColor(utils.HexToRGBA(req.ForegroundColor)))
+		&BufferWriteCloser{bufio.NewWriter(&png)},
+		standard.WithBgColorRGBHex(req.BackgroundColor),
+		standard.WithFgColorRGBHex(req.ForegroundColor),
+	)
 	saveErr := qr.Save(w)
 
 	return png.Bytes(), saveErr
@@ -62,8 +62,8 @@ func generateFromRequest(req generateBody) ([]byte, error) {
 //	@Router			/v1/generate [post]
 func GenerateQR(c *fiber.Ctx) error {
 	payload := generateBody{
-		BackgroundColor: "ffffff",
-		ForegroundColor: "000000",
+		BackgroundColor: "#ffffff",
+		ForegroundColor: "#000000",
 		//DisableBorder:   false,
 		Size:          512,
 		RecoveryLevel: "medium",

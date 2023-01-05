@@ -3,6 +3,7 @@ package utils
 import (
 	"errors"
 	"fmt"
+	"log"
 	"reflect"
 	"regexp"
 	"strings"
@@ -13,11 +14,14 @@ import (
 var validate = validator.New()
 
 func init() {
-	validate.RegisterValidation("custom_hexcolor", validateHexColor)
+	err := validate.RegisterValidation("custom_hexcolor", validateHexColor)
+	if err != nil {
+		log.Fatal("Failed to register custom_hexcolor validation tag")
+	}
 }
 
 func validateHexColor(fl validator.FieldLevel) bool {
-	re := regexp.MustCompile("^([0-9A-Fa-f]{6}|[0-9A-Fa-f]{8})$")
+	re := regexp.MustCompile("^#([0-9A-Fa-f]{3}|[0-9A-Fa-f]{6})$")
 
 	return re.Match([]byte(fl.Field().String()))
 }
@@ -36,7 +40,7 @@ func msgForTag(fe validator.FieldError) string {
 	case "required":
 		return "is required"
 	case "custom_hexcolor":
-		return "should be valid hex color string with length of 6 (or 8)"
+		return "should be valid RGB hex color"
 	case "min":
 		return fmt.Sprintf("should be at least %v %v", fe.Param(), minMaxUnits(fe))
 	case "max":

@@ -14,8 +14,8 @@ import (
 var validate = validator.New()
 
 func init() {
-	err := validate.RegisterValidation("custom_hexcolor", validateHexColor)
-	if err != nil {
+	errHex := validate.RegisterValidation("custom_hexcolor", validateHexColor)
+	if errHex != nil {
 		log.Fatal("Failed to register custom_hexcolor validation tag")
 	}
 }
@@ -41,6 +41,8 @@ func msgForTag(fe validator.FieldError) string {
 		return "is required"
 	case "custom_hexcolor":
 		return "should be valid RGB hex color"
+	case "ltfield":
+		return "should be less than field " + fe.Param()
 	case "min":
 		return fmt.Sprintf("should be at least %v %v", fe.Param(), minMaxUnits(fe))
 	case "max":

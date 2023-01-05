@@ -17,7 +17,7 @@ type generateBody struct {
 	ForegroundColor string `json:"foregroundColor" validate:"custom_hexcolor" example:"000000"`
 	Size            int    `json:"size" validate:"min=128" example:"512"`
 	RecoveryLevel   string `json:"recoveryLevel" validate:"oneof=low medium high highest" example:"medium"`
-	//DisableBorder   bool   `json:"disableBorder" example:"false"`
+	BorderSize      int    `json:"borderSize" validate:"ltfield=Size" example:"false"`
 }
 
 type BufferWriteCloser struct {
@@ -40,10 +40,18 @@ func generateFromRequest(req generateBody) ([]byte, error) {
 
 	var png bytes.Buffer
 
-	w := standard.NewWithWriter(
-		&BufferWriteCloser{bufio.NewWriter(&png)},
+	options := []standard.ImageOption{
 		standard.WithBgColorRGBHex(req.BackgroundColor),
 		standard.WithFgColorRGBHex(req.ForegroundColor),
+	}
+
+	if req.BorderSize >= 0 {
+		options = append(options, standard.WithBorderWidth(req.BorderSize))
+	}
+
+	w := standard.NewWithWriter(
+		&BufferWriteCloser{bufio.NewWriter(&png)},
+		options...,
 	)
 	saveErr := qr.Save(w)
 
@@ -64,7 +72,8 @@ func GenerateQR(c *fiber.Ctx) error {
 	payload := generateBody{
 		BackgroundColor: "#ffffff",
 		ForegroundColor: "#000000",
-		//DisableBorder:   false,
+		// values less than 0 does not count
+		BorderSize:    -1,
 		Size:          512,
 		RecoveryLevel: "medium",
 	}

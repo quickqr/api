@@ -10,7 +10,7 @@ import (
 )
 
 type generateBody struct {
-	Data            string `json:"data" validate:"required" example:"Some data to encode"`
+	Data            string `json:"data" validate:"required, max=2,953" example:"Some data to encode"`
 	BackgroundColor string `json:"backgroundColor" validate:"custom_hexcolor" example:"ffffff"`
 	ForegroundColor string `json:"foregroundColor" validate:"custom_hexcolor" example:"000000"`
 	Size            int    `json:"size" validate:"min=128" example:"512"`

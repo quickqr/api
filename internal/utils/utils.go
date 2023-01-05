@@ -4,18 +4,17 @@ import (
 	"encoding/hex"
 	"errors"
 	"fmt"
+	"github.com/yeqown/go-qrcode/v2"
 	"image/color"
 	"strings"
-
-	"github.com/skip2/go-qrcode"
 )
 
 var (
-	recoveryLevelsMap = map[string]qrcode.RecoveryLevel{
-		"low":    qrcode.Low,
-		"medium": qrcode.Medium,
-		"high":   qrcode.High,
-		"delete": qrcode.Highest,
+	recoveryLevelsMap = map[string]qrcode.ErrorCorrectionLevel{
+		"low":    qrcode.ErrorCorrectionLow,
+		"medium": qrcode.ErrorCorrectionMedium,
+		"high":   qrcode.ErrorCorrectionQuart,
+		"delete": qrcode.ErrorCorrectionHighest,
 	}
 )
 
@@ -34,7 +33,7 @@ func (bit *ConvertibleBoolean) UnmarshalJSON(data []byte) error {
 	return nil
 }
 
-func StringToRecoveryLevel(str string) (qrcode.RecoveryLevel, bool) {
+func StringToRecoveryLevel(str string) (qrcode.ErrorCorrectionLevel, bool) {
 	c, ok := recoveryLevelsMap[strings.ToLower(str)]
 	return c, ok
 }

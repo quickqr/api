@@ -1,37 +1,53 @@
 package v1_api
 
 import (
+	"bufio"
+	"bytes"
 	"encoding/json"
 	"fmt"
-
 	"github.com/gofiber/fiber/v2"
-	"github.com/skip2/go-qrcode"
+	"github.com/yeqown/go-qrcode/v2"
+	"github.com/yeqown/go-qrcode/writer/standard"
 	"gitlab.com/quick-qr/server/internal/utils"
 )
 
 type generateBody struct {
-	Data            string `json:"data" validate:"required, max=2,953" example:"Some data to encode"`
+	Data            string `json:"data" validate:"required,max=2953" example:"Some data to encode"`
 	BackgroundColor string `json:"backgroundColor" validate:"custom_hexcolor" example:"ffffff"`
 	ForegroundColor string `json:"foregroundColor" validate:"custom_hexcolor" example:"000000"`
 	Size            int    `json:"size" validate:"min=128" example:"512"`
 	RecoveryLevel   string `json:"recoveryLevel" validate:"oneof=low medium high highest" example:"medium"`
-	DisableBorder   bool   `json:"disableBorder" example:"false"`
+	//DisableBorder   bool   `json:"disableBorder" example:"false"`
+}
+
+type BufferWriteCloser struct {
+	*bufio.Writer
+}
+
+func (bwc *BufferWriteCloser) Close() error {
+	// Noop
+	return nil
 }
 
 func generateFromRequest(req generateBody) ([]byte, error) {
 	lvl, _ := utils.StringToRecoveryLevel(req.RecoveryLevel)
 
-	qr, err := qrcode.New(req.Data, lvl)
+	qr, err := qrcode.NewWith(req.Data, qrcode.WithErrorCorrectionLevel(lvl))
 
 	if err != nil {
 		return nil, err
 	}
 
-	qr.DisableBorder = req.DisableBorder
-	qr.BackgroundColor = utils.HexToRGBA(req.BackgroundColor)
-	qr.ForegroundColor = utils.HexToRGBA(req.ForegroundColor)
+	var png bytes.Buffer
 
-	return qr.PNG(req.Size)
+	w := standard.NewWithWriter(
+		&BufferWriteCloser{
+			bufio.NewWriter(&png)},
+
+		standard.WithBgColor(utils.HexToRGBA(req.BackgroundColor)), standard.WithFgColor(utils.HexToRGBA(req.ForegroundColor)))
+	saveErr := qr.Save(w)
+
+	return png.Bytes(), saveErr
 }
 
 // GenerateQR godoc
@@ -48,9 +64,9 @@ func GenerateQR(c *fiber.Ctx) error {
 	payload := generateBody{
 		BackgroundColor: "ffffff",
 		ForegroundColor: "000000",
-		DisableBorder:   false,
-		Size:            512,
-		RecoveryLevel:   "medium",
+		//DisableBorder:   false,
+		Size:          512,
+		RecoveryLevel: "medium",
 	}
 
 	if err := c.BodyParser(&payload); err != nil {

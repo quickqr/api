@@ -17,8 +17,8 @@ import (
 
 type generateBody struct {
 	Data            string  `json:"data" validate:"required,max=2953" example:"Some data to encode"`
-	BackgroundColor string  `json:"backgroundColor" validate:"custom_hexcolor" example:"ffffff"`
-	ForegroundColor string  `json:"foregroundColor" validate:"custom_hexcolor" example:"000000"`
+	BackgroundColor string  `json:"backgroundColor" validate:"custom_hexcolor" example:"#ffffff"`
+	ForegroundColor string  `json:"foregroundColor" validate:"custom_hexcolor" example:"#000000"`
 	Size            int     `json:"size" validate:"min=1" example:"512"`
 	RecoveryLevel   string  `json:"recoveryLevel" validate:"oneof=low medium high highest" example:"medium"`
 	BorderSize      int     `json:"borderSize" validate:"ltfield=Size" example:"false"`

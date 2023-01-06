@@ -4,7 +4,6 @@ import (
 	"bufio"
 	"bytes"
 	"encoding/base64"
-	"encoding/json"
 	"fmt"
 	"github.com/gofiber/fiber/v2"
 	"github.com/yeqown/go-qrcode/v2"
@@ -18,21 +17,22 @@ import (
 )
 
 type generateBody struct {
+	// TODO: Remove "max"
 	// Data that will be encoded inside the QR code
-	Data string `json:"data" validate:"required,max=2953" example:"Hello, world"`
+	Data string `json:"data" query:"data" validate:"required,max=2953" example:"Hello, world"`
 	// Color of the background for the image
-	BackgroundColor string `json:"backgroundColor" validate:"custom_hexcolor" example:"#ffffff" default:"#ffffff"`
+	BackgroundColor string `json:"backgroundColor" query:"backgroundColor" validate:"custom_hexcolor" example:"#ffffff" default:"#ffffff"`
 	// Color of QR blocks
-	ForegroundColor string `json:"foregroundColor" validate:"custom_hexcolor" example:"#000000" default:"#000000"`
+	ForegroundColor string `json:"foregroundColor" query:"foregroundColor" validate:"custom_hexcolor" example:"#000000" default:"#000000"`
 	// Defines the size of the produced image in pixels
-	Size int `json:"size" validate:"min=128" example:"512" default:"512"`
+	Size int `json:"size" query:"size" validate:"min=128" example:"512" default:"512"`
 
-	RecoveryLevel string `json:"recoveryLevel" validate:"oneof=low medium high highest" example:"medium" default:"medium"`
+	RecoveryLevel string `json:"recoveryLevel" query:"recoveryLevel" validate:"oneof=low medium high highest" example:"medium" default:"medium"`
 	// Defines size of the quiet zone for the QR code. With bigger border size, the actual size of QR code makes smaller
-	BorderSize int `json:"borderSize" validate:"ltfield=Size" example:"30" default:"30"`
+	BorderSize int `json:"borderSize" query:"borderSize" validate:"ltfield=Size" example:"30" default:"30"`
 	// Image to put at the center of QR code
-	Logo      *string `json:"logo" example:"base64 string or URL to image"`
-	LogoScale float32 `json:"logoScale" validate:"gt=0,max=0.25" example:"0.2" default:"0.2"`
+	Logo      *string `json:"logo" query:"logo" example:"base64 string or URL to image"`
+	LogoScale float32 `json:"logoScale" query:"logoScale" validate:"gt=0,max=0.25" example:"0.2" default:"0.2"`
 }
 
 func (b *generateBody) getLogoData() ([]byte, *httpError) {
@@ -43,7 +43,6 @@ func (b *generateBody) getLogoData() ([]byte, *httpError) {
 	urlRE := regexp.MustCompile("^(https?:\\/\\/)?[-a-zA-Z0-9@:%._\\+~#=]{1,256}\\.[a-zA-Z0-9()]{1,6}\\b(?:[-a-zA-Z0-9()@:%_\\+.~#?&\\/=]*)$")
 
 	if urlRE.Match([]byte(*b.Logo)) {
-		fmt.Println("url")
 		// TODO: fetch image
 	}
 
@@ -116,25 +115,43 @@ func generateFromRequest(req generateBody) ([]byte, *httpError) {
 	return png.Bytes(), nil
 }
 
-// GenerateQR godoc
+// GetGenerateQR godoc
+//
+//		@Summary		Generate customizable QR code with GET request
+//		@Description.markdown generate-qr
+//		@Accept			json
+//	 	@Param 			q query v1_api.generateBody true "Configuration for the QR code"
+//		@Produce		png
+//		@Failure		400	{object}	v1_api.errorResponse
+//		@Success		201	{string}  string	"Will return generated QR code as PNG"
+//		@Router			/v1/generate [get]
+func GetGenerateQR(c *fiber.Ctx) error {
+	return proccedWithRequestData(c, c.QueryParser)
+}
+
+// PostGenerateQR godoc
 //
 //	@Summary		Generate customizable QR code
-//	@Description.markdown	generate-qr
+//	@Description	This path is alternative to `GET /v1/generate`, all params need to be supplied in body. Refer to `GET` version for any documentation
 //	@Param			request	body	v1_api.generateBody	true	"Configuration for QR code generator. Default values are showed below"
 //	@Accept			json
 //	@Produce		png
 //	@Failure		400	{object}	v1_api.errorResponse
 //	@Success		201	{string}  string	"Will return generated QR code as PNG"
 //	@Router			/v1/generate [post]
-func GenerateQR(c *fiber.Ctx) error {
+func PostGenerateQR(c *fiber.Ctx) error {
+	return proccedWithRequestData(c, c.BodyParser)
+}
+
+// TODO: Do something with max size validation, different data fit differently
+func proccedWithRequestData(c *fiber.Ctx, parser func(out interface{}) error) error {
 	payload := new(generateBody)
 	defaults.SetDefaults(payload)
-	fmt.Println(payload)
 
-	if err := c.BodyParser(&payload); err != nil {
+	if err := parser(payload); err != nil {
 		errMsg := err.Error()
 
-		if jsonError, ok := err.(*json.UnmarshalTypeError); ok {
+		if jsonError, ok := err.(*fiber.UnmarshalTypeError); ok {
 			errMsg = fmt.Sprintf("%v should be of type %v, but received %v", jsonError.Field, jsonError.Type, jsonError.Value)
 		}
 
@@ -145,7 +162,6 @@ func GenerateQR(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusBadRequest).JSON(errorResponse{*err})
 	}
 
-	// TODO: Return struct with status code to differentiate 5xx and 4xx instead of single status code below
 	img, err := generateFromRequest(*payload)
 
 	if err != nil {

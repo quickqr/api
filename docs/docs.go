@@ -19,8 +19,104 @@ const docTemplate = `{
     "basePath": "{{.BasePath}}",
     "paths": {
         "/v1/generate": {
+            "get": {
+                "description": "#### Data\n\n` + "`" + `data` + "`" + ` can be any string with the length less than 2953 bytes, it's the maximum value that QR code can store\n\n##### Colors\n\n` + "`" + `backgroundColor` + "`" + ` and ` + "`" + `foregroundColor` + "`" + ` are the hex RGB representation. The length of the color is either 3 or 6.  \nValid examples: ` + "`" + `#fff` + "`" + `, ` + "`" + `#1f1f1f` + "`" + `\n\n#### Size\n\n` + "`" + `size` + "`" + ` controls size of the image with QR code, not the actual QR code.\n\n#### Border size\n\n` + "`" + `borderSize` + "`" + ` is the space between the edge of an image and the edge of a QR-code.\n\u003e Note: the bigger border size, fewer space left for the actual QR code, so it'll appear smaller\n\n#### Logo\n\nLogo in the center of QR code is controlled by ` + "`" + `logo` + "`" + ` and ` + "`" + `logoScale` + "`" + ` fields.  \n` + "`" + `logo` + "`" + ` can be either base64 encoded image or URL to the image. Valid image types: PNG or JPEG.\n\n` + "`" + `logoScale` + "`" + ` controls how big logo will be relatively to the QR code size (not the image, but resized QR code, if borders\napplied).  \nLogo can take up to 25% of the QR code. Hence, the maxiumum value is ` + "`" + `0.25` + "`" + `\n\n#### Recovery Levels\n\nRecovery Levels control how much data will be used to duplicate data.\n\u003e Note: with higher recovery level, you get more chance that QR code will be scanned even if corrupted.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "image/png"
+                ],
+                "summary": "Generate customizable QR code with GET request",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "default": "#ffffff",
+                        "example": "#ffffff",
+                        "description": "Color of the background for the image",
+                        "name": "backgroundColor",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "default": 30,
+                        "example": 30,
+                        "description": "Defines size of the quiet zone for the QR code. With bigger border size, the actual size of QR code makes smaller",
+                        "name": "borderSize",
+                        "in": "query"
+                    },
+                    {
+                        "maxLength": 2953,
+                        "type": "string",
+                        "example": "Hello, world",
+                        "description": "Data that will be encoded inside the QR code",
+                        "name": "data",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "default": "#000000",
+                        "example": "#000000",
+                        "description": "Color of QR blocks",
+                        "name": "foregroundColor",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "example": "base64 string or URL to image",
+                        "description": "Image to put at the center of QR code",
+                        "name": "logo",
+                        "in": "query"
+                    },
+                    {
+                        "maximum": 0.25,
+                        "type": "number",
+                        "default": 0.2,
+                        "example": 0.2,
+                        "name": "logoScale",
+                        "in": "query"
+                    },
+                    {
+                        "enum": [
+                            "low",
+                            "medium",
+                            "high",
+                            "highest"
+                        ],
+                        "type": "string",
+                        "default": "medium",
+                        "example": "medium",
+                        "name": "recoveryLevel",
+                        "in": "query"
+                    },
+                    {
+                        "minimum": 128,
+                        "type": "integer",
+                        "default": 512,
+                        "example": 512,
+                        "description": "Defines the size of the produced image in pixels",
+                        "name": "size",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Will return generated QR code as PNG",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/v1_api.errorResponse"
+                        }
+                    }
+                }
+            },
             "post": {
-                "description": "#### Data\n` + "`" + `data` + "`" + ` can be any string with the length less than 2953 bytes, it's the maximum value that QR code can store\n\n##### Colors\n` + "`" + `backgroundColor` + "`" + ` and ` + "`" + `foregroundColor` + "`" + ` are the hex RGB representation. The length of the color is either 3 or 6.  \nValid examples: ` + "`" + `#fff` + "`" + `, ` + "`" + `#1f1f1f` + "`" + `\n\n#### Size\n` + "`" + `size` + "`" + ` controls size of the image with QR code, not the actual QR code.\n\n#### Border size\n` + "`" + `borderSize` + "`" + ` is the space between the edge of an image and the edge of a QR-code.\n\u003e Note: the bigger border size, fewer space left for the actual QR code, so it'll appear smaller\n\n#### Logo\nLogo in the center of QR code is controlled by ` + "`" + `logo` + "`" + ` and ` + "`" + `logoScale` + "`" + ` fields.  \n` + "`" + `logo` + "`" + ` can be either base64 encoded image or URL to the image. Valid image types: PNG or JPEG.  \n  \n` + "`" + `logoScale` + "`" + ` controls how big logo will be relatively to the QR code size (not the image, but resized QR code, if borders applied).  \nLogo can take up to 25% of the QR code. Hence, the maxiumum value is ` + "`" + `0.25` + "`" + `\n\n#### Recovery Levels\nRecovery Levels control how much data will be used to duplicate data. \n\u003e Note: with higher recovery level, you get more chance that QR code will be scanned even if corrupted.",
+                "description": "This path is alternative to ` + "`" + `GET /v1/generate` + "`" + `, all params need to be supplied in body. Refer to ` + "`" + `GET` + "`" + ` version for any documentation",
                 "consumes": [
                     "application/json"
                 ],

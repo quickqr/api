@@ -20,7 +20,7 @@ type generateBody struct {
 	Data            string  `json:"data" validate:"required,max=2953" example:"Some data to encode"`
 	BackgroundColor string  `json:"backgroundColor" validate:"custom_hexcolor" example:"#ffffff"`
 	ForegroundColor string  `json:"foregroundColor" validate:"custom_hexcolor" example:"#000000"`
-	Size            int     `json:"size" validate:"min=1" example:"512"`
+	Size            int     `json:"size" validate:"min=128" example:"512"`
 	RecoveryLevel   string  `json:"recoveryLevel" validate:"oneof=low medium high highest" example:"medium"`
 	BorderSize      int     `json:"borderSize" validate:"ltfield=Size" example:"30"`
 	Logo            *string `json:"logo" example:"base64 string or URL to image"`
@@ -110,7 +110,7 @@ func generateFromRequest(req generateBody) ([]byte, error) {
 //	@Param			request	body	v1_api.generateBody	true	"Configuration for QR code generator. Default values are showed below"
 //	@Accept			json
 //	@Produce		png
-//	@Failure		400	{object}	errorResponse
+//	@Failure		400	{object}	v1_api.errorResponse
 //	@Success		201	{object}	string	"Will return generated QR code as PNG"
 //	@Router			/v1/generate [post]
 func GenerateQR(c *fiber.Ctx) error {

@@ -5,7 +5,6 @@ import (
 	"bytes"
 	"encoding/base64"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"github.com/gofiber/fiber/v2"
 	"github.com/yeqown/go-qrcode/v2"
@@ -14,6 +13,7 @@ import (
 	"gopkg.in/mcuadros/go-defaults.v1"
 	"image"
 	_ "image/jpeg"
+	"log"
 	"regexp"
 )
 
@@ -35,9 +35,9 @@ type generateBody struct {
 	LogoScale float32 `json:"logoScale" validate:"gt=0,max=0.25" example:"0.2" default:"0.2"`
 }
 
-func (b *generateBody) getLogoData() ([]byte, error) {
+func (b *generateBody) getLogoData() ([]byte, *httpError) {
 	if b.Logo == nil {
-		return nil, errors.New("No image data supplied")
+		return nil, &httpError{fiber.StatusBadRequest, "No Image data supplied"}
 	}
 
 	urlRE := regexp.MustCompile("^(https?:\\/\\/)?[-a-zA-Z0-9@:%._\\+~#=]{1,256}\\.[a-zA-Z0-9()]{1,6}\\b(?:[-a-zA-Z0-9()@:%_\\+.~#?&\\/=]*)$")
@@ -50,7 +50,7 @@ func (b *generateBody) getLogoData() ([]byte, error) {
 	decoded, err := base64.StdEncoding.DecodeString(*b.Logo)
 
 	if err != nil {
-		return nil, fiber.NewError(fiber.StatusBadRequest, "Failed to read base64 data.")
+		return nil, &httpError{fiber.StatusBadRequest, "Invalid format for base64 encoded logo."}
 	}
 
 	return decoded, nil
@@ -65,13 +65,13 @@ func (bwc *BufferWriteCloser) Close() error {
 	return nil
 }
 
-func generateFromRequest(req generateBody) ([]byte, error) {
+func generateFromRequest(req generateBody) ([]byte, *httpError) {
 	lvl, _ := utils.StringToRecoveryLevel(req.RecoveryLevel)
 
 	qr, err := qrcode.NewWith(req.Data, qrcode.WithErrorCorrectionLevel(lvl))
 
 	if err != nil {
-		return nil, err
+		return nil, &httpError{500, err.Error()}
 	}
 
 	var png bytes.Buffer
@@ -88,15 +88,15 @@ func generateFromRequest(req generateBody) ([]byte, error) {
 	}
 
 	if req.Logo != nil {
-		b, err := req.getLogoData()
-		if err != nil {
-			return nil, err
+		b, logoErr := req.getLogoData()
+		if logoErr != nil {
+			return nil, logoErr
 		}
 
 		logo, _, err := image.Decode(bytes.NewReader(b))
 
 		if err != nil {
-			return nil, err
+			return nil, &httpError{400, "Unable to read logo image."}
 		}
 
 		options = append(options, standard.WithLogoImage(logo))
@@ -108,7 +108,12 @@ func generateFromRequest(req generateBody) ([]byte, error) {
 	)
 	saveErr := qr.Save(w)
 
-	return png.Bytes(), saveErr
+	if saveErr != nil {
+		log.Printf("Failed to export QR code with request: %v", err)
+		return nil, &httpError{500, "Some error happened when trying to export QR code."}
+	}
+
+	return png.Bytes(), nil
 }
 
 // GenerateQR godoc
@@ -144,7 +149,7 @@ func GenerateQR(c *fiber.Ctx) error {
 	img, err := generateFromRequest(*payload)
 
 	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(errorResponse{err.Error()})
+		return c.Status(err.Status).JSON(errorResponse{err.Message})
 	}
 
 	c.Set("Content-Type", "image/png")

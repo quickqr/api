@@ -20,14 +20,14 @@ const docTemplate = `{
     "paths": {
         "/v1/generate": {
             "post": {
-                "description": "// TODO: ",
+                "description": "#### Data\n` + "`" + `data` + "`" + ` can be any string with the length less than 2953 bytes, it's the maximum value that QR code can store\n\n##### Colors\n` + "`" + `backgroundColor` + "`" + ` and ` + "`" + `foregroundColor` + "`" + ` are the hex RGB representation. The length of the color is either 3 or 6.  \nValid examples: ` + "`" + `#fff` + "`" + `, ` + "`" + `#1f1f1f` + "`" + `\n\n#### Size\n` + "`" + `size` + "`" + ` controls size of the image with QR code, not the actual QR code.\n\n#### Border size\n` + "`" + `borderSize` + "`" + ` is the space between the edge of an image and the edge of a QR-code.\n\u003e Note: the bigger border size, fewer space left for the actual QR code, so it'll appear smaller\n\n#### Logo\nLogo in the center of QR code is controlled by ` + "`" + `logo` + "`" + ` and ` + "`" + `logoScale` + "`" + ` fields.  \n` + "`" + `logo` + "`" + ` can be either base64 encoded image or URL to the image. Valid image types: PNG or JPEG.  \n  \n` + "`" + `logoScale` + "`" + ` controls how big logo will be relatively to the QR code size (not the image, but resized QR code, if borders applied).  \nLogo can take up to 25% of the QR code. Hence, the maxiumum value is ` + "`" + `0.25` + "`" + `\n\n#### Recovery Levels\nRecovery Levels control how much data will be used to duplicate data. \n\u003e Note: with higher recovery level, you get more chance that QR code will be scanned even if corrupted.",
                 "consumes": [
                     "application/json"
                 ],
                 "produces": [
                     "image/png"
                 ],
-                "summary": "Get user list",
+                "summary": "Generate customizable QR code",
                 "parameters": [
                     {
                         "description": "Configuration for QR code generator. Default values are showed below",
@@ -61,7 +61,8 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "message": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "You messed up!"
                 }
             }
         },
@@ -72,33 +73,43 @@ const docTemplate = `{
             ],
             "properties": {
                 "backgroundColor": {
+                    "description": "Color of the background for the image",
                     "type": "string",
+                    "default": "#ffffff",
                     "example": "#ffffff"
                 },
                 "borderSize": {
+                    "description": "Defines size of the quiet zone for the QR code. With bigger border size, the actual size of QR code makes smaller",
                     "type": "integer",
+                    "default": 30,
                     "example": 30
                 },
                 "data": {
+                    "description": "Data that will be encoded inside the QR code",
                     "type": "string",
                     "maxLength": 2953,
-                    "example": "Some data to encode"
+                    "example": "Hello, world"
                 },
                 "foregroundColor": {
+                    "description": "Color of QR blocks",
                     "type": "string",
+                    "default": "#000000",
                     "example": "#000000"
                 },
                 "logo": {
+                    "description": "Image to put at the center of QR code",
                     "type": "string",
                     "example": "base64 string or URL to image"
                 },
                 "logoScale": {
                     "type": "number",
+                    "default": 0.2,
                     "maximum": 0.25,
                     "example": 0.2
                 },
                 "recoveryLevel": {
                     "type": "string",
+                    "default": "medium",
                     "enum": [
                         "low",
                         "medium",
@@ -108,8 +119,10 @@ const docTemplate = `{
                     "example": "medium"
                 },
                 "size": {
+                    "description": "Defines the size of the produced image in pixels",
                     "type": "integer",
-                    "minimum": 1,
+                    "default": 512,
+                    "minimum": 128,
                     "example": 512
                 }
             }
@@ -124,7 +137,7 @@ var SwaggerInfo = &swag.Spec{
 	BasePath:         "/api/",
 	Schemes:          []string{},
 	Title:            "Quick QR API",
-	Description:      "Description for methods available with Quick QR API",
+	Description:      "Quick QR allows to create highly customizable QR codes and export it to PNG.",
 	InfoInstanceName: "swagger",
 	SwaggerTemplate:  docTemplate,
 }

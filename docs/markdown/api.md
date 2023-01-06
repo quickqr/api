@@ -1,0 +1,1 @@
+Quick QR allows to create highly customizable QR codes and export it to PNG.

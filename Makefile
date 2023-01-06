@@ -9,5 +9,4 @@
 #	docker-compose down
 
 swagger:
-	swag init -g cmd/main.go --md docs/markdown
-
+	swag init -g cmd/main.go --ot go,json --md docs/markdown; mv docs/swagger.json docs/public/

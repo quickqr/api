@@ -1,0 +1,32 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8"> <!-- Important: rapi-doc uses utf8 characters -->
+    <script src="https://unpkg.com/rapidoc/dist/rapidoc-min.js" type="module"></script>
+</head>
+<body>
+<!--TODO: Change logo-->
+<rapi-doc
+        allow-authentication="false"
+        allow-search="false"
+        allow-server-selection="false"
+        allow-spec-file-load="false"
+        allow-spec-url-load="false"
+        bg-color="#171717"
+        default-schema-tab="schema"
+        header-color="#1D1D1D"
+        heading-text="Quick QR API reference"
+        nav-bg-color="#1D1D1D"
+        primary-color="#87EE63"
+        schema-description-expanded="true"
+        show-method-in-nav-bar="as-colored-text"
+        spec-url="./swagger.json"
+        use-path-in-nav-bar="true"
+>
+    <img
+            slot="logo"
+            src="./logo.png"
+    />
+</rapi-doc>
+</body>
+</html>

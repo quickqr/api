@@ -5,7 +5,6 @@ go 1.19
 require (
 	github.com/go-playground/validator/v10 v10.11.1
 	github.com/gofiber/fiber/v2 v2.41.0
-	github.com/gofiber/swagger v0.1.8
 	github.com/joho/godotenv v1.4.0
 	github.com/swaggo/swag v1.8.9
 	github.com/yeqown/go-qrcode/v2 v2.2.1
@@ -43,6 +42,7 @@ require (
 	golang.org/x/sys v0.4.0 // indirect
 	golang.org/x/text v0.6.0 // indirect
 	golang.org/x/tools v0.5.0 // indirect
+	gopkg.in/mcuadros/go-defaults.v1 v1.1.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
 

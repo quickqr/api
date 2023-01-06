@@ -8,28 +8,36 @@ definitions:
   v1_api.generateBody:
     properties:
       backgroundColor:
-        example: ffffff
+        example: '#ffffff'
         type: string
+      borderSize:
+        example: 30
+        type: integer
       data:
         example: Some data to encode
+        maxLength: 2953
         type: string
-      disableBorder:
-        example: false
-        type: boolean
       foregroundColor:
-        example: "000000"
+        example: '#000000'
         type: string
+      logo:
+        example: base64 string or URL to image
+        type: string
+      logoScale:
+        example: 0.2
+        maximum: 0.25
+        type: number
       recoveryLevel:
         enum:
-        - low
-        - medium
-        - high
-        - highest
+          - low
+          - medium
+          - high
+          - highest
         example: medium
         type: string
       size:
         example: 512
-        minimum: 128
+        minimum: 1
         type: integer
     required:
     - data

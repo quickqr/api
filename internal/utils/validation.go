@@ -47,6 +47,8 @@ func msgForTag(fe validator.FieldError) string {
 		return fmt.Sprintf("should be at least %v %v", fe.Param(), minMaxUnits(fe))
 	case "max":
 		return fmt.Sprintf("should not be greater than %v %v", fe.Param(), minMaxUnits(fe))
+	case "gt":
+		return fmt.Sprintf("should be greater than %v %v", fe.Param(), minMaxUnits(fe))
 	case "oneof":
 		list := strings.Join(strings.Split(fe.Param(), " "), ", ")
 		return "should be on of following values: " + list
@@ -66,7 +68,7 @@ func ValidateStruct[T any](s T) *string {
 		field, _ := reflect.TypeOf(s).FieldByName(err.StructField())
 		name := strings.SplitN(field.Tag.Get("json"), ",", 2)[0]
 
-		reason := fmt.Sprintf("%v %v", name, msgForTag(err))
+		reason := strings.TrimSpace(fmt.Sprintf("%v %v", name, msgForTag(err)))
 
 		return &reason
 	}

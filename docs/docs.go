@@ -73,19 +73,29 @@ const docTemplate = `{
             "properties": {
                 "backgroundColor": {
                     "type": "string",
-                    "example": "ffffff"
+                    "example": "#ffffff"
+                },
+                "borderSize": {
+                    "type": "integer",
+                    "example": 30
                 },
                 "data": {
                     "type": "string",
+                    "maxLength": 2953,
                     "example": "Some data to encode"
-                },
-                "disableBorder": {
-                    "type": "boolean",
-                    "example": false
                 },
                 "foregroundColor": {
                     "type": "string",
-                    "example": "000000"
+                    "example": "#000000"
+                },
+                "logo": {
+                    "type": "string",
+                    "example": "base64 string or URL to image"
+                },
+                "logoScale": {
+                    "type": "number",
+                    "maximum": 0.25,
+                    "example": 0.2
                 },
                 "recoveryLevel": {
                     "type": "string",
@@ -99,7 +109,7 @@ const docTemplate = `{
                 },
                 "size": {
                     "type": "integer",
-                    "minimum": 128,
+                    "minimum": 1,
                     "example": 512
                 }
             }

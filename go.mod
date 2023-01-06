@@ -46,4 +46,6 @@ require (
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
 
-replace github.com/yeqown/go-qrcode/v2 => github.com/kwinso/go-qrcode/v2 v2.0.0-20230105120257-f4da3dee0d51
+replace github.com/yeqown/go-qrcode/v2 => github.com/kwinso/go-qrcode/v2 v2.0.0-20230106083000-8da9e7307189
+
+replace github.com/yeqown/go-qrcode/writer/standard => github.com/kwinso/go-qrcode/writer/standard v0.0.0-20230106083000-8da9e7307189

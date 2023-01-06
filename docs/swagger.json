@@ -23,26 +23,26 @@
               "parameters": [
                 {
                   "description": "Configuration for QR code generator. Default values are showed below",
-                        "name": "request",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/v1_api.generateBody"
-                        }
-                    }
-                ],
-                "responses": {
-                    "201": {
-                        "description": "Will return generated QR code as PNG",
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/v1_api.errorResponse"
-                        }
+                  "name": "request",
+                  "in": "body",
+                  "required": true,
+                  "schema": {
+                    "$ref": "#/definitions/v1_api.generateBody"
+                  }
+                }
+              ],
+              "responses": {
+                "201": {
+                  "description": "Will return generated QR code as PNG",
+                  "schema": {
+                    "type": "string"
+                  }
+                },
+                "400": {
+                  "description": "Bad Request",
+                  "schema": {
+                    "$ref": "#/definitions/v1_api.errorResponse"
+                  }
                     }
                 }
             }
@@ -63,37 +63,47 @@
                 "data"
             ],
             "properties": {
-                "backgroundColor": {
-                    "type": "string",
-                    "example": "ffffff"
-                },
-                "data": {
-                    "type": "string",
-                    "example": "Some data to encode"
-                },
-                "disableBorder": {
-                    "type": "boolean",
-                    "example": false
-                },
-                "foregroundColor": {
-                    "type": "string",
-                    "example": "000000"
-                },
-                "recoveryLevel": {
-                    "type": "string",
-                    "enum": [
-                        "low",
-                        "medium",
-                        "high",
-                        "highest"
-                    ],
-                    "example": "medium"
-                },
-                "size": {
-                    "type": "integer",
-                    "minimum": 128,
-                    "example": 512
-                }
+              "backgroundColor": {
+                "type": "string",
+                "example": "#ffffff"
+              },
+              "borderSize": {
+                "type": "integer",
+                "example": 30
+              },
+              "data": {
+                "type": "string",
+                "maxLength": 2953,
+                "example": "Some data to encode"
+              },
+              "foregroundColor": {
+                "type": "string",
+                "example": "#000000"
+              },
+              "logo": {
+                "type": "string",
+                "example": "base64 string or URL to image"
+              },
+              "logoScale": {
+                "type": "number",
+                "maximum": 0.25,
+                "example": 0.2
+              },
+              "recoveryLevel": {
+                "type": "string",
+                "enum": [
+                  "low",
+                  "medium",
+                  "high",
+                  "highest"
+                ],
+                "example": "medium"
+              },
+              "size": {
+                "type": "integer",
+                "minimum": 1,
+                "example": 512
+              }
             }
         }
     }

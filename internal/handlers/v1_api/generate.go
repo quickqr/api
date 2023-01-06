@@ -12,6 +12,7 @@ import (
 	"github.com/yeqown/go-qrcode/writer/standard"
 	"gitlab.com/quick-qr/server/internal/utils"
 	"image"
+	_ "image/jpeg"
 	"regexp"
 )
 
@@ -21,8 +22,9 @@ type generateBody struct {
 	ForegroundColor string  `json:"foregroundColor" validate:"custom_hexcolor" example:"#000000"`
 	Size            int     `json:"size" validate:"min=1" example:"512"`
 	RecoveryLevel   string  `json:"recoveryLevel" validate:"oneof=low medium high highest" example:"medium"`
-	BorderSize      int     `json:"borderSize" validate:"ltfield=Size" example:"false"`
-	Logo            *string `json:"logo"`
+	BorderSize      int     `json:"borderSize" validate:"ltfield=Size" example:"30"`
+	Logo            *string `json:"logo" example:"base64 string or URL to image"`
+	LogoScale       float32 `json:"logoScale" validate:"gt=0,max=0.25" example:"0.2"`
 }
 
 func (b *generateBody) getLogoData() ([]byte, error) {
@@ -33,6 +35,7 @@ func (b *generateBody) getLogoData() ([]byte, error) {
 	urlRE := regexp.MustCompile("^(https?:\\/\\/)?[-a-zA-Z0-9@:%._\\+~#=]{1,256}\\.[a-zA-Z0-9()]{1,6}\\b(?:[-a-zA-Z0-9()@:%_\\+.~#?&\\/=]*)$")
 
 	if urlRE.Match([]byte(*b.Logo)) {
+		fmt.Println("url")
 		// TODO: fetch image
 	}
 
@@ -68,8 +71,8 @@ func generateFromRequest(req generateBody) ([]byte, error) {
 	options := []standard.ImageOption{
 		standard.WithBgColorRGBHex(req.BackgroundColor),
 		standard.WithFgColorRGBHex(req.ForegroundColor),
-		// TODO: Use another function that is responsible for overall QR code size
-		standard.WithQRWidth(uint8(req.Size)),
+		standard.WithLogoScale(req.LogoScale),
+		standard.WithImageSize(uint(req.Size)),
 	}
 
 	if req.BorderSize >= 0 {
@@ -116,6 +119,7 @@ func GenerateQR(c *fiber.Ctx) error {
 		ForegroundColor: "#000000",
 		// values less than 0 does not count
 		BorderSize:    -1,
+		LogoScale:     0.2,
 		Size:          512,
 		RecoveryLevel: "medium",
 	}

@@ -105,7 +105,7 @@ func generateFromRequest(req generateBody) ([]byte, error) {
 
 // GenerateQR godoc
 //
-//	@Summary		Get user list
+//	@Summary		Generate customizable QR code
 //	@Description.markdown	generate-qr
 //	@Param			request	body	v1_api.generateBody	true	"Configuration for QR code generator. Default values are showed below"
 //	@Accept			json

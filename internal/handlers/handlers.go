@@ -9,6 +9,5 @@ func Register(app *fiber.App) {
 	api := app.Group("/api")
 	v1 := api.Group("/v1")
 
-	v1.Get("/generate", v1_api.GetGenerateQR)
-	v1.Post("/generate", v1_api.PostGenerateQR)
+	v1.Post("/generate", v1_api.GenerateQR)
 }

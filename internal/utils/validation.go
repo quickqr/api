@@ -21,7 +21,7 @@ func init() {
 }
 
 func validateHexColor(fl validator.FieldLevel) bool {
-	re := regexp.MustCompile("^#([0-9A-Fa-f]{3}|[0-9A-Fa-f]{6})$")
+	re := regexp.MustCompile("^#([0-9A-Fa-f]{3}|[0-9A-Fa-f]{6}|[0-9A-Fa-f]{8})$")
 
 	return re.Match([]byte(fl.Field().String()))
 }
@@ -35,12 +35,11 @@ func minMaxUnits(fe validator.FieldError) string {
 }
 
 func msgForTag(fe validator.FieldError) string {
-
 	switch fe.Tag() {
 	case "required":
 		return "is required"
 	case "custom_hexcolor":
-		return "should be valid RGB hex color"
+		return "should have length of 3, 6 or 8 prefixed with #"
 	case "ltfield":
 		return "should be less than field " + fe.Param()
 	case "min":

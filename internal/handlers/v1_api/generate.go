@@ -76,9 +76,10 @@ func generateFromRequest(req generateBody) ([]byte, *httpError) {
 
 	var png bytes.Buffer
 
+	// TODO: Hex with alpha not really working (investigate into library)
 	options := []standard.ImageOption{
-		standard.WithBgColorRGBHex(req.BackgroundColor),
-		standard.WithFgColorRGBHex(req.ForegroundColor),
+		standard.WithBgColor(utils.HexToRGBA(req.BackgroundColor)),
+		standard.WithFgColor(utils.HexToRGBA(req.ForegroundColor)),
 		standard.WithLogoScale(req.LogoScale),
 		standard.WithImageSize(uint(req.Size)),
 	}
@@ -106,6 +107,7 @@ func generateFromRequest(req generateBody) ([]byte, *httpError) {
 		&BufferWriteCloser{bufio.NewWriter(&png)},
 		options...,
 	)
+
 	saveErr := qr.Save(w)
 
 	if saveErr != nil {
@@ -129,7 +131,6 @@ func generateFromRequest(req generateBody) ([]byte, *httpError) {
 func GenerateQR(c *fiber.Ctx) error {
 	payload := new(generateBody)
 	defaults.SetDefaults(payload)
-	fmt.Println(payload)
 
 	if err := c.BodyParser(&payload); err != nil {
 		errMsg := err.Error()

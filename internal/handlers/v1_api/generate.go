@@ -10,10 +10,13 @@ import (
 	"github.com/yeqown/go-qrcode/v2"
 	"github.com/yeqown/go-qrcode/writer/standard"
 	"gitlab.com/quick-qr/server/internal/utils"
+	_ "golang.org/x/image/webp"
 	"gopkg.in/mcuadros/go-defaults.v1"
 	"image"
 	_ "image/jpeg"
+	"io"
 	"log"
+	"net/http"
 	"regexp"
 )
 
@@ -43,14 +46,25 @@ func (b *generateBody) getLogoData() ([]byte, *httpError) {
 	urlRE := regexp.MustCompile("^(https?:\\/\\/)?[-a-zA-Z0-9@:%._\\+~#=]{1,256}\\.[a-zA-Z0-9()]{1,6}\\b(?:[-a-zA-Z0-9()@:%_\\+.~#?&\\/=]*)$")
 
 	if urlRE.Match([]byte(*b.Logo)) {
-		fmt.Println("url")
-		// TODO: fetch image
+		res, err := http.Get(*b.Logo)
+
+		if err != nil {
+			return nil, &httpError{fiber.StatusBadRequest, "Cannot access logo URL. Is it ok?"}
+		}
+
+		data, err := io.ReadAll(res.Body)
+
+		if err != nil {
+			return nil, &httpError{fiber.StatusInternalServerError, "Cannot read from logo image request."}
+		}
+
+		return data, nil
 	}
 
 	decoded, err := base64.StdEncoding.DecodeString(*b.Logo)
 
 	if err != nil {
-		return nil, &httpError{fiber.StatusBadRequest, "Invalid format for base64 encoded logo."}
+		return nil, &httpError{fiber.StatusBadRequest, "Cannot decode base64 data for logo."}
 	}
 
 	return decoded, nil
@@ -65,6 +79,7 @@ func (bwc *BufferWriteCloser) Close() error {
 	return nil
 }
 
+// TODO: Migrate to new library when ready
 func generateFromRequest(req generateBody) ([]byte, *httpError) {
 	lvl, _ := utils.StringToRecoveryLevel(req.RecoveryLevel)
 
@@ -97,7 +112,7 @@ func generateFromRequest(req generateBody) ([]byte, *httpError) {
 		logo, _, err := image.Decode(bytes.NewReader(b))
 
 		if err != nil {
-			return nil, &httpError{400, "Unable to read logo image."}
+			return nil, &httpError{400, "Logo image is not an image file."}
 		}
 
 		options = append(options, standard.WithLogoImage(logo))
@@ -112,7 +127,7 @@ func generateFromRequest(req generateBody) ([]byte, *httpError) {
 
 	if saveErr != nil {
 		log.Printf("Failed to export QR code with request: %v", err)
-		return nil, &httpError{500, "Some error happened when trying to export QR code."}
+		return nil, &httpError{500, "Some error happened when trying to generate QR code."}
 	}
 
 	return png.Bytes(), nil

@@ -1,4 +1,4 @@
-module gitlab.com/quick-qr/server
+module gitlab.com/quickqr/api
 
 go 1.19
 
@@ -6,9 +6,10 @@ require (
 	github.com/go-playground/validator/v10 v10.11.1
 	github.com/gofiber/fiber/v2 v2.41.0
 	github.com/joho/godotenv v1.4.0
+	github.com/quickqr/gqr v0.2.1
 	github.com/swaggo/swag v1.8.9
-	github.com/yeqown/go-qrcode/v2 v2.2.1
-	github.com/yeqown/go-qrcode/writer/standard v1.2.1
+	golang.org/x/image v0.3.0
+	gopkg.in/mcuadros/go-defaults.v1 v1.1.0
 )
 
 require (
@@ -31,21 +32,13 @@ require (
 	github.com/mattn/go-runewidth v0.0.14 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/rivo/uniseg v0.4.3 // indirect
-	github.com/swaggo/files v1.0.0 // indirect
 	github.com/valyala/bytebufferpool v1.0.0 // indirect
 	github.com/valyala/fasthttp v1.43.0 // indirect
 	github.com/valyala/tcplisten v1.0.0 // indirect
-	github.com/yeqown/reedsolomon v1.0.0 // indirect
 	golang.org/x/crypto v0.0.0-20220214200702-86341886e292 // indirect
-	golang.org/x/image v0.0.0-20200927104501-e162460cd6b5 // indirect
-	golang.org/x/net v0.5.0 // indirect
 	golang.org/x/sys v0.4.0 // indirect
 	golang.org/x/text v0.6.0 // indirect
 	golang.org/x/tools v0.5.0 // indirect
-	gopkg.in/mcuadros/go-defaults.v1 v1.1.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
+	launchpad.net/gocheck v0.0.0-20140225173054-000000000087 // indirect
 )
-
-replace github.com/yeqown/go-qrcode/v2 => github.com/kwinso/go-qrcode/v2 v2.0.0-20230106083000-8da9e7307189
-
-replace github.com/yeqown/go-qrcode/writer/standard => github.com/kwinso/go-qrcode/writer/standard v0.0.0-20230106083000-8da9e7307189

@@ -2,7 +2,7 @@ package handlers
 
 import (
 	"github.com/gofiber/fiber/v2"
-	"gitlab.com/quick-qr/server/internal/handlers/v1_api"
+	"gitlab.com/quickqr/api/internal/handlers/v1_api"
 )
 
 func Register(app *fiber.App) {

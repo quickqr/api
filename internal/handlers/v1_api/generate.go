@@ -7,17 +7,19 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/gofiber/fiber/v2"
-	"github.com/yeqown/go-qrcode/v2"
-	"github.com/yeqown/go-qrcode/writer/standard"
-	"gitlab.com/quick-qr/server/internal/utils"
 	_ "golang.org/x/image/webp"
 	"gopkg.in/mcuadros/go-defaults.v1"
 	"image"
 	_ "image/jpeg"
+	"image/png"
 	"io"
 	"log"
 	"net/http"
 	"regexp"
+
+	"github.com/quickqr/gqr"
+	export "github.com/quickqr/gqr/export/image"
+	"gitlab.com/quickqr/api/internal/utils"
 )
 
 type generateBody struct {
@@ -32,10 +34,15 @@ type generateBody struct {
 
 	RecoveryLevel string `json:"recoveryLevel" validate:"oneof=low medium high highest" example:"medium" default:"medium"`
 	// Defines size of the quiet zone for the QR code. With bigger border size, the actual size of QR code makes smaller
-	BorderSize int `json:"borderSize" validate:"ltfield=Size" example:"30" default:"30"`
+	QuietZone int `json:"quietZone" validate:"ltfield=Size" example:"30" default:"30"`
 	// Image to put at the center of QR code
 	Logo      *string `json:"logo" example:"base64 string or URL to image"`
 	LogoScale float32 `json:"logoScale" validate:"gt=0,max=0.25" example:"0.2" default:"0.2"`
+	// TODO:
+	// 	- space around logo
+	// 	- gradient: gradientDirection, gradientColors (validate as struct of custom_hexcolor)
+	// 	- Shapes: enum with values like "rounded", "square" and "circle"
+	// 	- Forced version
 }
 
 func (b *generateBody) getLogoData() ([]byte, *httpError) {
@@ -79,28 +86,23 @@ func (bwc *BufferWriteCloser) Close() error {
 	return nil
 }
 
-// TODO: Migrate to new library when ready
 func generateFromRequest(req generateBody) ([]byte, *httpError) {
 	lvl, _ := utils.StringToRecoveryLevel(req.RecoveryLevel)
 
-	qr, err := qrcode.NewWith(req.Data, qrcode.WithErrorCorrectionLevel(lvl))
+	qr, err := gqr.NewWith(req.Data, gqr.WithErrorCorrectionLevel(lvl))
 
 	if err != nil {
 		return nil, &httpError{500, err.Error()}
 	}
 
-	var png bytes.Buffer
-
-	// TODO: Hex with alpha not really working (investigate into library)
-	options := []standard.ImageOption{
-		standard.WithBgColor(utils.HexToRGBA(req.BackgroundColor)),
-		standard.WithFgColor(utils.HexToRGBA(req.ForegroundColor)),
-		standard.WithLogoScale(req.LogoScale),
-		standard.WithImageSize(uint(req.Size)),
+	options := []export.ExportOption{
+		export.WithBgColor(export.ParseFromHex(req.BackgroundColor)),
+		export.WithFgColor(export.ParseFromHex(req.ForegroundColor)),
+		export.WithImageSize(req.Size),
 	}
 
-	if req.BorderSize >= 0 {
-		options = append(options, standard.WithBorderWidth(req.BorderSize))
+	if req.QuietZone >= 0 {
+		options = append(options, export.WithQuietZone(req.QuietZone))
 	}
 
 	if req.Logo != nil {
@@ -115,22 +117,19 @@ func generateFromRequest(req generateBody) ([]byte, *httpError) {
 			return nil, &httpError{400, "Logo image is not an image file."}
 		}
 
-		options = append(options, standard.WithLogoImage(logo))
+		options = append(options, export.WithLogo(logo))
 	}
 
-	w := standard.NewWithWriter(
-		&BufferWriteCloser{bufio.NewWriter(&png)},
-		options...,
-	)
-
-	saveErr := qr.Save(w)
+	buf := new(bytes.Buffer)
+	img := export.NewExporter(options...).Export(*qr)
+	saveErr := png.Encode(buf, img)
 
 	if saveErr != nil {
 		log.Printf("Failed to export QR code with request: %v", err)
 		return nil, &httpError{500, "Some error happened when trying to generate QR code."}
 	}
 
-	return png.Bytes(), nil
+	return buf.Bytes(), nil
 }
 
 // GenerateQR godoc
@@ -161,7 +160,6 @@ func GenerateQR(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusBadRequest).JSON(errorResponse{*err})
 	}
 
-	// TODO: Return struct with status code to differentiate 5xx and 4xx instead of single status code below
 	img, err := generateFromRequest(*payload)
 
 	if err != nil {

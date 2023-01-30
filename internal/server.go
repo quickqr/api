@@ -3,7 +3,7 @@ package internal
 import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
-	"gitlab.com/quick-qr/server/internal/handlers"
+	"gitlab.com/quickqr/api/internal/handlers"
 	"time"
 )
 

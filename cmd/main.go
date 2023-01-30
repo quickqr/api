@@ -5,8 +5,8 @@ import (
 	"os"
 
 	"github.com/joho/godotenv"
-	_ "gitlab.com/quick-qr/server/docs"
-	"gitlab.com/quick-qr/server/internal"
+	_ "gitlab.com/quickqr/api/docs"
+	"gitlab.com/quickqr/api/internal"
 )
 
 // @title			Quick QR API

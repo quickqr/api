@@ -1,7 +1,6 @@
 package v1_api
 
 import (
-	"bufio"
 	"bytes"
 	"encoding/base64"
 	"encoding/json"
@@ -88,15 +87,6 @@ func (b *generateBody) getLogoData() ([]byte, *httpError) {
 	}
 
 	return decoded, nil
-}
-
-type BufferWriteCloser struct {
-	*bufio.Writer
-}
-
-func (bwc *BufferWriteCloser) Close() error {
-	// Noop
-	return nil
 }
 
 func generateFromRequest(req generateBody) ([]byte, *httpError) {

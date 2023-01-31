@@ -23,6 +23,7 @@ import (
 )
 
 type generateBody struct {
+	// TODO: Remove max (library will throw an error if version and data size mismatched)
 	// Data that will be encoded inside the QR code
 	Data string `json:"data" validate:"required,max=2953" example:"Hello, world"`
 	// Color of the background for the image
@@ -38,8 +39,8 @@ type generateBody struct {
 	// Image to put at the center of QR code
 	Logo      *string `json:"logo" example:"base64 string or URL to image"`
 	LogoScale float32 `json:"logoScale" validate:"gt=0,max=0.25" example:"0.2" default:"0.2"`
+	LogoSpace bool    `json:"logoSpace" example:"true" default:"false"`
 	// TODO:
-	// 	- space around logo
 	// 	- gradient: gradientDirection, gradientColors (validate as struct of custom_hexcolor)
 	// 	- Shapes: enum with values like "rounded", "square" and "circle"
 	// 	- Forced version
@@ -99,6 +100,10 @@ func generateFromRequest(req generateBody) ([]byte, *httpError) {
 		export.WithBgColor(export.ParseFromHex(req.BackgroundColor)),
 		export.WithFgColor(export.ParseFromHex(req.ForegroundColor)),
 		export.WithImageSize(req.Size),
+	}
+
+	if req.LogoSpace {
+		options = append(options, export.WithSpaceAroundLogo())
 	}
 
 	if req.QuietZone >= 0 {

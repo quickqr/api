@@ -1,11 +1,12 @@
 <!doctype html>
-<html>
+<html lang="en">
 <head>
     <meta charset="utf-8"> <!-- Important: rapi-doc uses utf8 characters -->
     <script src="https://unpkg.com/rapidoc/dist/rapidoc-min.js" type="module"></script>
+    <link href="./favicon.ico" rel="icon" type="image/x-icon">
+    <title>API Reference</title>
 </head>
 <body>
-<!--TODO: Change logo-->
 <rapi-doc
         allow-authentication="false"
         allow-search="false"
@@ -17,14 +18,18 @@
         heading-text="Quick QR API reference"
         nav-bg-color="#1D1D1D"
         primary-color="#87EE63"
+        render-style="read"
         schema-description-expanded="true"
+        schema-style="table"
         show-method-in-nav-bar="as-colored-text"
         spec-url="./swagger.json"
         use-path-in-nav-bar="true"
 >
     <img
+            alt="QQR"
             slot="logo"
             src="./logo.png"
+            width="64"
     />
 </rapi-doc>
 </body>

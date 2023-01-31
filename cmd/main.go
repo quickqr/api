@@ -9,11 +9,11 @@ import (
 	"gitlab.com/quickqr/api/internal"
 )
 
-// @title			Quick QR API
+// @title		Quick QR API
 // @version		0.0.0
-// @contact.url	https://gitlab.com/quick-qr/api/
+// @contact.url	https://gitlab.com/quickqr
 // @description.markdown
-// @BasePath		/api/
+// @BasePath	/api/
 func main() {
 	err := godotenv.Load()
 

@@ -11,7 +11,7 @@ const docTemplate = `{
         "description": "{{escape .Description}}",
         "title": "{{.Title}}",
         "contact": {
-            "url": "https://gitlab.com/quick-qr/api/"
+            "url": "https://gitlab.com/quickqr"
         },
         "version": "{{.Version}}"
     },
@@ -20,7 +20,7 @@ const docTemplate = `{
     "paths": {
         "/v1/generate": {
             "post": {
-                "description": "#### Data\n\n` + "`" + `data` + "`" + ` can be any string with the length less than 2953 bytes, it's the maximum value that QR code can store\n\n##### Colors\n\n` + "`" + `backgroundColor` + "`" + ` and ` + "`" + `foregroundColor` + "`" + ` are the hex RGB representation. The length of the color is either 3 or 6.  \nValid examples: ` + "`" + `#fff` + "`" + `, ` + "`" + `#1f1f1f` + "`" + `\n\n#### Size\n\n` + "`" + `size` + "`" + ` controls size of the image with QR code, not the actual QR code.\n\n#### Border size\n\n` + "`" + `borderSize` + "`" + ` is the space between the edge of an image and the edge of a QR-code.\n\u003e Note: the bigger border size, fewer space left for the actual QR code, so it'll appear smaller\n\n#### Logo\n\nLogo in the center of QR code is controlled by ` + "`" + `logo` + "`" + ` and ` + "`" + `logoScale` + "`" + ` fields.  \n` + "`" + `logo` + "`" + ` can be either base64 encoded image or URL to the image. Valid image types: PNG or JPEG.\n\n` + "`" + `logoScale` + "`" + ` controls how big logo will be relatively to the QR code size (not the image, but resized QR code, if borders\napplied).  \nLogo can take up to 25% of the QR code. Hence, the maxiumum value is ` + "`" + `0.25` + "`" + `\n\n#### Recovery Levels\n\nRecovery Levels control how much data will be used to duplicate data.\n\u003e Note: with higher recovery level, you get more chance that QR code will be scanned even if corrupted.",
+                "description": "### Data\n\n` + "`" + `data` + "`" + ` can be any string with the length less than 2953 bytes, it's the maximum value that QR code can store\n\n#### Colors\n\n` + "`" + `backgroundColor` + "`" + ` and ` + "`" + `foregroundColor` + "`" + ` are the hex RGB representation. The length of the color is either 3 or 6.  \nValid examples: ` + "`" + `#fff` + "`" + `, ` + "`" + `#1f1f1f` + "`" + `\n\n### Size\n\n` + "`" + `size` + "`" + ` controls size of the image with QR code, not the actual QR code.\n\n### Quiet Zone\n\n` + "`" + `quietZone` + "`" + ` is the space between the edge of an image and the edge of a QR-code.\n\u003e Note: with bigger quiet zone, fewer space left for the actual QR code, so it'll appear smaller\n \n### Styling\n\nYou can style QR code via ` + "`" + `finder` + "`" + `, ` + "`" + `module` + "`" + ` and ` + "`" + `gap` + "`" + ` values. See reference below\n\n### Gradients\n\nGradient is set up via ` + "`" + `gradientDirection` + "`" + ` and ` + "`" + `gradientColors` + "`" + ` variables (see more in docs below)\n\n### Logo\n\nLogo in the center of QR code is controlled by ` + "`" + `logo` + "`" + ` and ` + "`" + `logoScale` + "`" + ` fields.  \n` + "`" + `logo` + "`" + ` can be either base64 encoded image or URL to the image. Valid image types: PNG or JPEG.\n\n` + "`" + `logoSpace` + "`" + ` adds space around logo, QR code will look cleaner\n\n### Recovery Levels\n\nRecovery Levels control how much data will be used to duplicate data.\n\u003e Note: with higher recovery level, you get more chance that QR code will be scanned even if corrupted.\n\n### Version\n\nYou can force version (and max capacity, then) with ` + "`" + `version.` + "`" + `\n\u003e Be aware of errors if data overflows max capacity of supplied version",
                 "consumes": [
                     "application/json"
                 ],
@@ -78,17 +78,20 @@ const docTemplate = `{
                     "default": "#ffffff",
                     "example": "#ffffff"
                 },
-                "borderSize": {
-                    "description": "Defines size of the quiet zone for the QR code. With bigger border size, the actual size of QR code makes smaller",
-                    "type": "integer",
-                    "default": 30,
-                    "example": 30
-                },
                 "data": {
                     "description": "Data that will be encoded inside the QR code",
                     "type": "string",
-                    "maxLength": 2953,
                     "example": "Hello, world"
+                },
+                "finder": {
+                    "description": "Controls how the finders on QR code will look",
+                    "type": "string",
+                    "default": "square",
+                    "enum": [
+                        "square",
+                        "rounded",
+                        "circle"
+                    ]
                 },
                 "foregroundColor": {
                     "description": "Color of QR blocks",
@@ -96,18 +99,56 @@ const docTemplate = `{
                     "default": "#000000",
                     "example": "#000000"
                 },
+                "gap": {
+                    "description": "Controls padding between modules in percents relative to module size",
+                    "type": "integer",
+                    "default": 0,
+                    "maximum": 50,
+                    "minimum": 0
+                },
+                "gradientColors": {
+                    "description": "List of colors to place in specified direction. Every value should be hex color",
+                    "type": "array",
+                    "minItems": 2,
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "gradientDirection": {
+                    "description": "Gradient direction. 0 for left to right (default), 1 for right to left",
+                    "type": "integer",
+                    "maximum": 1,
+                    "minimum": 0
+                },
                 "logo": {
                     "description": "Image to put at the center of QR code",
                     "type": "string",
                     "example": "base64 string or URL to image"
                 },
-                "logoScale": {
-                    "type": "number",
-                    "default": 0.2,
-                    "maximum": 0.25,
-                    "example": 0.2
+                "logoSpace": {
+                    "description": "Adds space around logo, image will look more clear",
+                    "type": "boolean",
+                    "default": false,
+                    "example": true
+                },
+                "module": {
+                    "description": "Controls how modules on QR code will look",
+                    "type": "string",
+                    "default": "square",
+                    "enum": [
+                        "square",
+                        "rounded",
+                        "circle"
+                    ]
+                },
+                "quietZone": {
+                    "description": "Defines size of the quiet zone for the QR code. With bigger border size, the actual size of QR code makes smaller",
+                    "type": "integer",
+                    "default": 30,
+                    "example": 30
                 },
                 "recoveryLevel": {
+                    "description": "How much error correction data will be embedded to QR code.",
                     "type": "string",
                     "default": "medium",
                     "enum": [
@@ -124,6 +165,14 @@ const docTemplate = `{
                     "default": 512,
                     "minimum": 128,
                     "example": 512
+                },
+                "version": {
+                    "description": "Forced version for generated QR code. 0 means automatic",
+                    "type": "integer",
+                    "default": 0,
+                    "maximum": 40,
+                    "minimum": 0,
+                    "example": 14
                 }
             }
         }
@@ -137,7 +186,7 @@ var SwaggerInfo = &swag.Spec{
 	BasePath:         "/api/",
 	Schemes:          []string{},
 	Title:            "Quick QR API",
-	Description:      "Quick QR allows to create highly customizable QR codes and export it to PNG.",
+	Description:      "Quick QR is an API for creating QR codes focused on customization.\n\n### Features:\n- Setting background and foreground colors\n- Gradient for foreground color with variable direction\n- Customizing shapes for QR code modules and finders, setting space between modules\n- Embedding logo in QR code: send either a URL, or raw base64 encoded file\n- And other \n\n",
 	InfoInstanceName: "swagger",
 	SwaggerTemplate:  docTemplate,
 }

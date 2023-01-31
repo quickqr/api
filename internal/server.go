@@ -4,7 +4,6 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
 	"gitlab.com/quickqr/api/internal/handlers"
-	"time"
 )
 
 func RunServer(port string) error {
@@ -16,7 +15,7 @@ func RunServer(port string) error {
 		return c.Redirect("/docs/index.html")
 	})
 
-	app.Static("/docs/", "./docs/public", fiber.Static{CacheDuration: time.Hour})
+	app.Static("/docs/", "./docs/public", fiber.Static{CacheDuration: 0})
 	handlers.Register(app)
 
 	return app.Listen(":" + port)

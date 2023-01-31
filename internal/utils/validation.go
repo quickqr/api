@@ -53,7 +53,7 @@ func msgForTag(fe validator.FieldError) string {
 		return fmt.Sprintf("should be greater than %v %v", fe.Param(), minMaxUnits(fe))
 	case "oneof":
 		list := strings.Join(strings.Split(fe.Param(), " "), ", ")
-		return "should be on of following values: " + list
+		return "should be one of following values: " + list
 	}
 
 	return fe.Error() // default error

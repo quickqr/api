@@ -44,6 +44,13 @@ type generateBody struct {
 	// Adds space around logo, image will look more clear
 	LogoSpace bool `json:"logoSpace" example:"true" default:"false"`
 
+	// Controls how the finders on QR code will look
+	FinderShape string `json:"finder" validate:"oneof=square rounded circle" default:"square"`
+	// Controls how modules on QR code will look
+	ModuleShape string `json:"module" validate:"oneof=square rounded circle" default:"square"`
+	// Controls padding between modules in percents relative to module size
+	Gap int `json:"gap" validate:"min=0,max=50" default:"0"`
+
 	// TODO:
 	// 	- gradient: gradientDirection, gradientColors (validate as struct of custom_hexcolor)
 	// 	- Shapes: enum with values like "rounded", "square" and "circle"
@@ -104,6 +111,9 @@ func generateFromRequest(req generateBody) ([]byte, *httpError) {
 	options := []export.ExportOption{
 		export.WithBgColor(export.ParseFromHex(req.BackgroundColor)),
 		export.WithFgColor(export.ParseFromHex(req.ForegroundColor)),
+		export.WithFinderShape(utils.StringToFinderShape(req.FinderShape)),
+		export.WithModuleShape(utils.StringToModuleDrawer(req.ModuleShape)),
+		export.WithModuleGap(float64(req.Gap) / 100),
 		export.WithImageSize(req.Size),
 	}
 

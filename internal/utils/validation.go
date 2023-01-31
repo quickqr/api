@@ -30,6 +30,9 @@ func minMaxUnits(fe validator.FieldError) string {
 	if fe.Type().Name() == "string" {
 		return "characters"
 	}
+	if fe.Type().String() == "[]string" {
+		return "items"
+	}
 
 	return ""
 }
@@ -39,7 +42,7 @@ func msgForTag(fe validator.FieldError) string {
 	case "required":
 		return "is required"
 	case "custom_hexcolor":
-		return "should have length of 3, 6 or 8 prefixed with #"
+		return "hex color should have length of 3, 6 or 8 prefixed with #"
 	case "ltfield":
 		return "should be less than field " + fe.Param()
 	case "min":

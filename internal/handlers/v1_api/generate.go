@@ -10,6 +10,7 @@ import (
 	_ "golang.org/x/image/webp"
 	"gopkg.in/mcuadros/go-defaults.v1"
 	"image"
+	"image/color"
 	_ "image/jpeg"
 	"image/png"
 	"io"
@@ -23,7 +24,6 @@ import (
 )
 
 type generateBody struct {
-	// TODO: Remove max (library will throw an error if version and data size mismatched)
 	// Data that will be encoded inside the QR code
 	Data string `json:"data" validate:"required" example:"Hello, world"`
 	// Color of the background for the image
@@ -33,6 +33,7 @@ type generateBody struct {
 	// Defines the size of the produced image in pixels
 	Size int `json:"size" validate:"min=128" example:"512" default:"512"`
 
+	// How much error correction data will be embedded to QR code.
 	RecoveryLevel string `json:"recoveryLevel" validate:"oneof=low medium high highest" example:"medium" default:"medium"`
 	// Defines size of the quiet zone for the QR code. With bigger border size, the actual size of QR code makes smaller
 	QuietZone int `json:"quietZone" validate:"ltfield=Size" example:"30" default:"30"`
@@ -51,9 +52,10 @@ type generateBody struct {
 	// Controls padding between modules in percents relative to module size
 	Gap int `json:"gap" validate:"min=0,max=50" default:"0"`
 
-	// TODO:
-	// 	- gradient: gradientDirection, gradientColors (validate as struct of custom_hexcolor)
-	// 	- Shapes: enum with values like "rounded", "square" and "circle"
+	// Gradient direction. 0 for left to right (default), 1 for right to left
+	GradientDirection int `json:"gradientDirection" validate:"min=0,max=1"`
+	// List of colors to place in specified direction. Every value should be hex color
+	GradientColors *[]string `json:"gradientColors" validate:"omitempty,min=2,dive,custom_hexcolor"`
 }
 
 func (b *generateBody) getLogoData() ([]byte, *httpError) {
@@ -115,6 +117,16 @@ func generateFromRequest(req generateBody) ([]byte, *httpError) {
 		export.WithModuleShape(utils.StringToModuleDrawer(req.ModuleShape)),
 		export.WithModuleGap(float64(req.Gap) / 100),
 		export.WithImageSize(req.Size),
+	}
+
+	if req.GradientColors != nil {
+		colors := make([]color.Color, len(*req.GradientColors))
+
+		for i, e := range *req.GradientColors {
+			colors[i] = export.ParseFromHex(e)
+		}
+
+		options = append(options, export.WithGradient(req.GradientDirection, colors...))
 	}
 
 	if req.LogoSpace {

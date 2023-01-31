@@ -25,7 +25,7 @@ import (
 type generateBody struct {
 	// TODO: Remove max (library will throw an error if version and data size mismatched)
 	// Data that will be encoded inside the QR code
-	Data string `json:"data" validate:"required,max=2953" example:"Hello, world"`
+	Data string `json:"data" validate:"required" example:"Hello, world"`
 	// Color of the background for the image
 	BackgroundColor string `json:"backgroundColor" validate:"custom_hexcolor" example:"#ffffff" default:"#ffffff"`
 	// Color of QR blocks
@@ -36,14 +36,17 @@ type generateBody struct {
 	RecoveryLevel string `json:"recoveryLevel" validate:"oneof=low medium high highest" example:"medium" default:"medium"`
 	// Defines size of the quiet zone for the QR code. With bigger border size, the actual size of QR code makes smaller
 	QuietZone int `json:"quietZone" validate:"ltfield=Size" example:"30" default:"30"`
+	// Forced version for generated QR code. 0 means automatic
+	Version int `json:"version" validate:"min=0,max=40" example:"14" default:"0"`
+
 	// Image to put at the center of QR code
-	Logo      *string `json:"logo" example:"base64 string or URL to image"`
-	LogoScale float32 `json:"logoScale" validate:"gt=0,max=0.25" example:"0.2" default:"0.2"`
-	LogoSpace bool    `json:"logoSpace" example:"true" default:"false"`
+	Logo *string `json:"logo" example:"base64 string or URL to image"`
+	// Adds space around logo, image will look more clear
+	LogoSpace bool `json:"logoSpace" example:"true" default:"false"`
+
 	// TODO:
 	// 	- gradient: gradientDirection, gradientColors (validate as struct of custom_hexcolor)
 	// 	- Shapes: enum with values like "rounded", "square" and "circle"
-	// 	- Forced version
 }
 
 func (b *generateBody) getLogoData() ([]byte, *httpError) {
@@ -90,7 +93,9 @@ func (bwc *BufferWriteCloser) Close() error {
 func generateFromRequest(req generateBody) ([]byte, *httpError) {
 	lvl, _ := utils.StringToRecoveryLevel(req.RecoveryLevel)
 
-	qr, err := gqr.NewWith(req.Data, gqr.WithErrorCorrectionLevel(lvl))
+	// Setting version as is because the library will throw anything that is not between 1 and 40
+	// So default value 0 will not affect anything
+	qr, err := gqr.NewWith(req.Data, gqr.WithErrorCorrectionLevel(lvl), gqr.WithVersion(req.Version))
 
 	if err != nil {
 		return nil, &httpError{500, err.Error()}

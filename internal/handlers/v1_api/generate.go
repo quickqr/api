@@ -47,7 +47,7 @@ type generateBody struct {
 	// Controls how the finders on QR code will look
 	FinderShape string `json:"finder" validate:"oneof=square rounded circle" default:"square"`
 	// Controls how modules on QR code will look
-	ModuleShape string `json:"module" validate:"oneof=square rounded circle" default:"square"`
+	ModuleShape string `json:"module" validate:"oneof=square rounded circle fluid" default:"square"`
 	// Controls padding between modules in percents relative to module size
 	Gap int `json:"gap" validate:"min=0,max=50" default:"0"`
 

@@ -21,6 +21,10 @@ func StringToFinderShape(str string) shapes.FinderDrawConfig {
 
 // StringToModuleDrawer converts string to shapes.ModuleDrawer, assuming the input is already valid
 func StringToModuleDrawer(str string) shapes.ModuleDrawer {
+	if str == "fluid" {
+		return shapes.RoundedModuleShape(0.5, true)
+	}
+
 	c, _ := roundnessLevels[strings.ToLower(str)]
-	return shapes.RoundedModuleShape(c)
+	return shapes.RoundedModuleShape(c, false)
 }

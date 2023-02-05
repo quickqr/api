@@ -51,7 +51,7 @@ type generateBody struct {
 	// Controls padding between modules in percents relative to module size
 	Gap int `json:"gap" validate:"min=0,max=50" default:"0"`
 
-	// Specified the gradient direction. 0 for left to right (default), 1 for right to left
+	// Specifies gradient direction. 0 for left to right (default), 1 for right to left
 	GradientDirection int `json:"gradient" validate:"min=0,max=1"`
 	// List of colors to place in specified direction. Every value should be hex color
 	GradientColors *[]string `json:"gradColors" validate:"omitempty,min=2,dive,custom_hexcolor"`

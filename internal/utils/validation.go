@@ -3,7 +3,6 @@ package utils
 import (
 	"errors"
 	"fmt"
-	"log"
 	"reflect"
 	"regexp"
 	"strings"
@@ -14,10 +13,7 @@ import (
 var validate = validator.New()
 
 func init() {
-	errHex := validate.RegisterValidation("custom_hexcolor", validateHexColor)
-	if errHex != nil {
-		log.Fatal("Failed to register custom_hexcolor validation tag")
-	}
+	_ = validate.RegisterValidation("custom_hexcolor", validateHexColor)
 }
 
 func validateHexColor(fl validator.FieldLevel) bool {
@@ -37,26 +33,44 @@ func minMaxUnits(fe validator.FieldError) string {
 	return ""
 }
 
-func msgForTag(fe validator.FieldError) string {
+func getJsonName(rt reflect.Type, s string) string {
+	field, _ := rt.FieldByName(s)
+	return strings.SplitN(field.Tag.Get("json"), ",", 2)[0]
+}
+
+func msgForTag(rt reflect.Type, fe validator.FieldError) string {
+	// Getting the JSON name for the errored field
+	name := getJsonName(rt, fe.StructField())
+	msg := ""
+
 	switch fe.Tag() {
 	case "required":
-		return "is required"
+		msg = "is required"
+		break
 	case "custom_hexcolor":
-		return "hex color should have length of 3, 6 or 8 prefixed with #"
+		msg = "hex color should have length of 3, 6 or 8 prefixed with #"
+		break
 	case "ltfield":
-		return "should be less than field " + fe.Param()
+		msg = "should be less than field " + getJsonName(rt, fe.Param())
+		break
 	case "min":
-		return fmt.Sprintf("should be at least %v %v", fe.Param(), minMaxUnits(fe))
+		msg = fmt.Sprintf("should be at least %v %v", fe.Param(), minMaxUnits(fe))
+		break
 	case "max":
-		return fmt.Sprintf("should not be greater than %v %v", fe.Param(), minMaxUnits(fe))
+		msg = fmt.Sprintf("should not be greater than %v %v", fe.Param(), minMaxUnits(fe))
+		break
 	case "gt":
-		return fmt.Sprintf("should be greater than %v %v", fe.Param(), minMaxUnits(fe))
+		msg = fmt.Sprintf("should be greater than %v %v", fe.Param(), minMaxUnits(fe))
+		break
 	case "oneof":
 		list := strings.Join(strings.Split(fe.Param(), " "), ", ")
-		return "should be one of following values: " + list
+		msg = "should be one of following values: " + list
+		break
+	default:
+		msg = fe.Error()
 	}
 
-	return fe.Error() // default error
+	return fmt.Sprintf("%v %v", name, msg)
 }
 
 func ValidateStruct[T any](s T) *string {
@@ -66,11 +80,7 @@ func ValidateStruct[T any](s T) *string {
 	if errors.As(err, &ve) {
 		err := ve[0]
 
-		// Getting the JSON name for the errored field
-		field, _ := reflect.TypeOf(s).FieldByName(err.StructField())
-		name := strings.SplitN(field.Tag.Get("json"), ",", 2)[0]
-
-		reason := strings.TrimSpace(fmt.Sprintf("%v %v", name, msgForTag(err)))
+		reason := strings.TrimSpace(msgForTag(reflect.TypeOf(s), err))
 
 		return &reason
 	}

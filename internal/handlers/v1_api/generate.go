@@ -54,7 +54,7 @@ type generateBody struct {
 	// Specifies gradient direction. 0 for left to right (default), 1 for right to left
 	GradientDirection int `json:"gradient" validate:"min=0,max=1"`
 	// List of colors to place in specified direction. Every value should be hex color
-	GradientColors *[]string `json:"gradColors" validate:"omitempty,min=2,dive,custom_hexcolor"`
+	GradientColors *[]string `json:"gradientColors" validate:"omitempty,min=2,dive,custom_hexcolor"`
 }
 
 func (b *generateBody) getLogoData() ([]byte, *httpError) {

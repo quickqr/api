@@ -44,7 +44,8 @@ type generateBody struct {
 	// Image to put at the center of QR code
 	Logo *string `json:"logo" example:"base64 string or URL to image"`
 	// Adds space around logo, image will look more clear
-	LogoSpace bool `json:"logoSpace" example:"true" default:"false"`
+	LogoSpace bool    `json:"logoSpace" example:"true" default:"false"`
+	LogoScale float64 `json:"logoScale" validate:"min=0.5,max=1" example:"0.4" default:"0.8"`
 
 	// Controls how the finders on QR code will look
 	FinderShape string `json:"finder" validate:"oneof=square rounded circle" default:"square"`
@@ -105,6 +106,7 @@ func generateFromRequest(req generateBody) ([]byte, *httpError) {
 	options := []export.ExportOption{
 		export.WithBgColor(export.ParseFromHex(req.BackgroundColor)),
 		export.WithFgColor(export.ParseFromHex(req.ForegroundColor)),
+		export.WithLogoScale(req.LogoScale),
 		export.WithFinderShape(utils.StringToFinderShape(req.FinderShape)),
 		export.WithModuleShape(utils.StringToModuleDrawer(req.ModuleShape)),
 		export.WithModuleGap(float64(req.Gap) / 100),

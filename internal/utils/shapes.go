@@ -1,6 +1,7 @@
 package utils
 
 import (
+	"fmt"
 	"github.com/quickqr/gqr/export/image/shapes"
 	"strings"
 )
@@ -21,8 +22,13 @@ func StringToFinderShape(str string) shapes.FinderDrawConfig {
 
 // StringToModuleDrawer converts string to shapes.ModuleDrawer, assuming the input is already valid
 func StringToModuleDrawer(str string) shapes.ModuleDrawer {
-	if str == "fluid" {
+	fmt.Println(str)
+	switch str {
+	case "fluid":
 		return shapes.RoundedModuleShape(0.5, true)
+	case "hline", "vline":
+		fmt.Println(str)
+		return shapes.LineModuleShape(0.5, str == "vline")
 	}
 
 	c, _ := roundnessLevels[strings.ToLower(str)]

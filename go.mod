@@ -6,7 +6,7 @@ require (
 	github.com/go-playground/validator/v10 v10.11.2
 	github.com/gofiber/fiber/v2 v2.41.0
 	github.com/joho/godotenv v1.4.0
-	github.com/quickqr/gqr v0.3.0
+	github.com/quickqr/gqr v0.3.1
 	github.com/swaggo/swag v1.8.10
 	golang.org/x/image v0.3.0
 	gopkg.in/mcuadros/go-defaults.v1 v1.1.0
